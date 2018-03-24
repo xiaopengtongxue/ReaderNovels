@@ -3,21 +3,28 @@ package com.xiapeng.readernovels.View
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
+import android.support.v7.widget.RecyclerView.OnScrollListener
+import android.util.Log
+import android.view.View
+import android.widget.AbsListView
+import android.widget.Toast
 import com.scwang.smartrefresh.layout.api.RefreshLayout
 import com.scwang.smartrefresh.layout.listener.OnLoadMoreListener
 import com.scwang.smartrefresh.layout.listener.OnRefreshListener
-import com.xiapeng.readernovels.Model.Chapter
 import com.xiapeng.readernovels.View.Adapter.ContentAdapter
 import com.xiapeng.readernovels.R
+import com.xiapeng.readernovels.Utils.Http.NetworkUtils
 import com.xiapeng.readernovels.Utils.Http.RetrofitHttp
 import kotlinx.android.synthetic.main.activity_content.*
-import org.litepal.crud.DataSupport
 
 class ContentActivity : AppCompatActivity() {
     val mList: MutableList<Map<String, String>> = ArrayList()
-
+    var nameList= java.util.ArrayList<String>()
+    var linkList= java.util.ArrayList<String>()
     var call:RetrofitHttp?=null
-    var order:Int=0
+    var head:Int=0
+    var tail:Int=0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,11 +33,14 @@ class ContentActivity : AppCompatActivity() {
         val intent=getIntent()
         val chapter=intent.getStringExtra("chapter")
         val link=intent.getStringExtra("link")
-        order=intent.getIntExtra("order",0)
+        head=intent.getIntExtra("order",0)
+        tail=head
+        linkList=intent.getStringArrayListExtra("linkList")
+        nameList=intent.getStringArrayListExtra("nameList")
         var host=resources.getStringArray(R.array.host)
         call=RetrofitHttp(host[0])
 
-        call!!.queryChapter(link,chapter,mList,recyclerview)
+        call!!.queryChapter(link,chapter,mList,recyclerview,true)
         initView()
     }
 
@@ -38,21 +48,31 @@ class ContentActivity : AppCompatActivity() {
         refreshLayout.setOnRefreshListener(object : OnRefreshListener {
             override fun onRefresh(refresh: RefreshLayout) {
                 refresh.finishRefresh(1000)
-                /*val chapterList=DataSupport.select("link","order").where("chapter=?",
-                        (order-1).toString()).find(Chapter::class.java)
-                if(chapterList.size!==0){
-                    getData(chapterList[0].link,chapterList[0].chapter)
-                }*/
+                if(NetworkUtils().isNetworkAvailiable(this@ContentActivity)) {
+                    tail = tail - 1
+                    if(tail==-1){
+                        //Toast.makeText(this@ContentActivity,R.string.not_pre_chapter,Toast.LENGTH_SHORT).show()
+                        tail=0
+                        return
+                    }
+                    if (tail >= 0) {
+                        call!!.queryChapter(linkList[tail], nameList[tail], mList, recyclerview, false)
+                    }
+                }else{
+                    Toast.makeText(this@ContentActivity,R.string.fail_net, Toast.LENGTH_LONG).show()
+                }
             }
         })
         refreshLayout.setOnLoadMoreListener(object : OnLoadMoreListener {
             override fun onLoadMore(refresh: RefreshLayout) {
                 refresh.finishLoadMore(1000)
-                val chapterList= DataSupport.select("link","chapter").where("order=?",
-                        (order+1).toString()).find(Chapter::class.java)
-                if(chapterList.size!==0){
-                    call!!.queryChapter(chapterList[0].link,chapterList[0].chapter,mList,recyclerview)
-                    order=order+1
+                if(NetworkUtils().isNetworkAvailiable(this@ContentActivity)) {
+                   /* head = head + 1
+                    if (head <= linkList.size) {
+                        call!!.queryChapter(linkList[head], nameList[head], mList, recyclerview, true)
+                    }*/
+                }else{
+                    Toast.makeText(this@ContentActivity,R.string.fail_net, Toast.LENGTH_LONG).show()
                 }
             }
         })
@@ -64,5 +84,18 @@ class ContentActivity : AppCompatActivity() {
         layoutManager.isAutoMeasureEnabled=true
         recyclerview.layoutManager=layoutManager
         recyclerview.adapter= ContentAdapter(this,mList)
+        recyclerview.addOnScrollListener(object :RecyclerView.OnScrollListener(){
+            override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                var manager=recyclerView!!.layoutManager as LinearLayoutManager
+                var currentPos=manager.findFirstVisibleItemPosition()
+                Log.d("position",(head-tail-currentPos).toString())
+                var gap=head-tail-currentPos
+                if (head < linkList.size-1&&gap<1) {
+                    head = head + 1
+                    call!!.queryChapter(linkList[head], nameList[head], mList, recyclerview, true)
+                }
+            }
+        })
     }
 }

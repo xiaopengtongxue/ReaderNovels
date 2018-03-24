@@ -3,6 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/menu_order"
-        android:title="@string/right_order"
+        android:title="@string/des_order"
         app:showAsAction="always"/>
 </menu>

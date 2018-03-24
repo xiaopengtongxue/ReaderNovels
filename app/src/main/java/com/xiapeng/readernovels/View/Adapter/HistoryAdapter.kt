@@ -1,13 +1,14 @@
 package com.xiapeng.readernovels.View.Adapter
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.ImageView
 import android.widget.TextView
-import com.nostra13.universalimageloader.core.ImageLoader
+import com.squareup.picasso.Picasso
 import com.xiapeng.readernovels.Model.HistoryList
 import com.xiapeng.readernovels.R
 
@@ -27,12 +28,13 @@ class HistoryAdapter(var context:Context,var list:MutableList<HistoryList>): Bas
 
         title.text=list[position].name
         var summaryText=list[position].summary.replace("\n","")
-        if(summaryText.length>53){
-            summaryText=summaryText.substring(0,53)+"..."
+        if(summaryText.length>48){
+            summaryText=summaryText.substring(0,48)+"..."
         }
         summary.text=summaryText
-        ImageLoader.getInstance().displayImage(list[position].img,avatar)
 
+        Picasso.with(context).load(list[position].img).into(avatar)
+        //Log.d("listview",position.toString())
         return view
     }
 
@@ -50,6 +52,11 @@ class HistoryAdapter(var context:Context,var list:MutableList<HistoryList>): Bas
 
     fun add(history: HistoryList){
         list.add(0,history)
+        notifyDataSetChanged()
+    }
+
+    fun deleteItem(position: Int){
+        list.removeAt(position)
         notifyDataSetChanged()
     }
 }

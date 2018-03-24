@@ -6,6 +6,5 @@
 
     <list>
         <mapping class="com.xiapeng.readernovels.Model.HistoryList"></mapping>
-        <mapping class="com.xiapeng.readernovels.Model.Chapter"></mapping>
     </list>
 </litepal>

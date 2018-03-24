@@ -2,4 +2,13 @@
     <string name="app_name">小说阅读器</string>
     <string name="right_order">正序</string>
     <string name="des_order">倒序</string>
+    <string name="fail_net">咦！咋没有网络了呢？</string>
+    <string name="alert">警告</string>
+    <string name="deleteItem">是否删除该记录？</string>
+    <string name="delete">删除</string>
+    <string name="cancel">取消</string>
+    <string name="no_novel">抱歉，没有查询到啊！</string>
+    <string name="request_fail">网络请求失败了！</string>
+    <string name="not_pre_chapter">没有上一章啦！</string>
+    <string name="not_next_chapter">没有下一章啦！</string>
 </resources>

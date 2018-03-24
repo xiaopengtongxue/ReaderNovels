@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="host">
-        <item>http://m.qududu.net</item>
+        <item>https://m.555zw.com</item>
+        <item>http://www.qududu.net</item>
         <item>https://m.uuxs.la</item>
         <item>http://m.baoliny.com</item>
         <item>http://m.longtanxs.com</item>
     </string-array>
 
     <string-array name="queryCommand">
+        <item>modules/article/searchs.php</item>
         <item>s.php</item>
         <item>modules/article/search.php</item>
         <item>s.php</item>

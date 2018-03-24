@@ -21,7 +21,7 @@ interface GetHttpInterface{
     fun getURL(@Url url:String): Call<ResponseBody>
 
     //form形式请求，停止URL编码（默认utf-8，但要求的网址以gbk编码）
-    @POST("s.php")
+    @POST("modules/article/searchs.php")
     @FormUrlEncoded
     @Headers("Content-Type: application/x-www-form-urlencoded;charset=GBK")
     fun getSearch(@FieldMap(encoded = true) map:Map<String, String>): Call<ResponseBody>

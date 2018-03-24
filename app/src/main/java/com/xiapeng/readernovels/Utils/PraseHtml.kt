@@ -1,7 +1,6 @@
 package com.xiapeng.readernovels.Utils
 
 import android.util.Log
-import com.xiapeng.readernovels.Model.Chapter
 import com.xiapeng.readernovels.Model.HistoryList
 import java.util.regex.Pattern
 
@@ -28,7 +27,7 @@ class PraseHtml{
         return catalog
     }
 
-    fun praseCatalog(msg:String?,countStep:Int):ArrayList<String>{
+    /*fun praseCatalog(msg:String?,countStep:Int):ArrayList<String>{
         var list= ArrayList<String>()
         val msgArray=msg!!.split("<li>")
         var j:Int=0
@@ -43,26 +42,49 @@ class PraseHtml{
                 val chap=cat.group().replace(Regex("<.*?>"),"")
                 //Log.d("catalog",chap )
                 list.add(chap)
-                cp.chapter=chap
+               cp.chapter=chap
                 Log.d("catalog", cat.group().replace(Regex("<a href=\'/"),"")
                         .replace(Regex("\'.*>.*?<span></span></a>"),""))
                 cp.link=cat.group().replace(Regex("<a href=\'/"),"")
                         .replace(Regex("\'.*>.*?<span></span></a>"),"")
                 cp.order =j+countStep*20
-                cp.save()
+                //cp.save()
             }
+        }
+        return list
+    }*/
+
+    fun praseCatalog2(msg:String?,countStep:Int): ArrayList<String> {
+        var list= ArrayList<String>()
+        var regex = "<a[^>]*>.*?<span></span></a>"
+        var con = Pattern.compile(regex)
+                .matcher(msg)
+        while(con.find()) {
+            list.add(con.group())
+        }
+        return list
+    }
+
+    fun praseCatalog3(msg:String?,countStep:Int): ArrayList<String> {
+        var list= ArrayList<String>()
+        var regex = "<a[^>]*>.*?</a><span class=\"listspan\"></span>"
+        var con = Pattern.compile(regex)
+                .matcher(msg)
+        while(con.find()) {
+            list.add(con.group())
         }
         return list
     }
 
     fun praseChapter(content:String):String{
-        val regex = "<div[^>]id=\"nr1\">.*?</div>"
+        val regex = "<div id=\"nr1\">.*?</div>"
         var con = Pattern.compile(regex)
-                .matcher(content)
+                .matcher(content.replace(Regex("\n"),""))
         if(con.find()) {
             Log.d("catalog", con.group())
-            val chap=con.group().replace(Regex("<br/>"),"\n")
-                    .replace(Regex("<.*>"),"")
+            val chap=con.group().replace(Regex("<br />"),"\n")
+                    .replace(Regex("<.*?>"),"")
+                    .replace(Regex("&nbsp;")," ")
             Log.d("catalog",chap )
             return chap
         }
@@ -80,7 +102,30 @@ class PraseHtml{
             Log.d("catalog",chap )
             return chap
         }
-        return "无结果"
+        return ""
+    }
+
+    fun praseSearch2(msg:String):HistoryList{
+        val catalog= HistoryList()
+        var regex = "<div class=\"gengduo\"><a[^>].*?>"
+        catalog.link=matcher(regex,msg).replace(Regex("<div class=\"gengduo\"><a href=\"/"),"")
+                .replace(Regex("\">"),"")
+        Log.d("catalog",catalog.link)
+
+        regex = "<div class=\"zhong\">.*?</div>"
+        catalog.name=matcher(regex,msg).replace(Regex("<.*?>"),"")
+        Log.d("catalog",catalog.name)
+
+        regex = "<div class=\"jianjie bk\">[^<]*</div>"
+        catalog.summary=matcher(regex,msg).replace(Regex("<.*?>"),"")
+        Log.d("catalog",catalog.summary)
+
+        regex = "<div class=\"xsfm\"><img[^>]*></div>"
+        catalog.img=matcher(regex,msg).replace(Regex("<div class=\"xsfm\"><img src=\""),"")
+                .replace(Regex("\" alt=.*?/></div>"),"")
+        Log.d("catalog",catalog.img)
+        catalog.save()
+        return catalog
     }
 
     fun matcher(regex: String,msg: String):String{
