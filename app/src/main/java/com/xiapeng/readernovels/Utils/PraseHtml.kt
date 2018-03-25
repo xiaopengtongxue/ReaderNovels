@@ -124,7 +124,9 @@ class PraseHtml{
         catalog.img=matcher(regex,msg).replace(Regex("<div class=\"xsfm\"><img src=\""),"")
                 .replace(Regex("\" alt=.*?/></div>"),"")
         Log.d("catalog",catalog.img)
-        catalog.save()
+        if(!catalog.link.isEmpty()) {
+            catalog.save()
+        }
         return catalog
     }
 

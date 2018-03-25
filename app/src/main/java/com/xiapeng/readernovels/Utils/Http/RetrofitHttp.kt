@@ -118,22 +118,22 @@ class RetrofitHttp(var url:String){
                 })
     }
 
-    fun queryChapter(link:String,chapter: String,mList:MutableList<Map<String,String>>,recyclerview:RecyclerView,isHead: Boolean){
+    fun queryChapter(link:String,chapter: String,mList:MutableList<Map<String,String>>,
+                     recyclerview:RecyclerView,isHead: Boolean,handler: Handler){
         call.getData(link)
                 .enqueue(object : Callback<ResponseBody> {
                     override fun onResponse(call: Call<ResponseBody>?, response: Response<ResponseBody>?) {
 
                         var resp:String = String(response!!.body()!!.bytes(), Charset.forName("gbk"))
                         val content=prase.praseChapter(resp)
-                        val map= HashMap<String,String>()
-                        map.set("content",content)
-                        map.set("contentTitle",chapter)
-                        if(isHead) {
-                            mList.add(map)
-                        }else{
-                            mList.add(0,map)
-                        }
-                        recyclerview.adapter.notifyDataSetChanged()
+                        var message=Message()
+                        var bundle=Bundle()
+                        bundle.putString("content",content)
+                        bundle.putString("contentTitle",chapter)
+                        bundle.putBoolean("isHead",isHead)
+                        message.data= bundle
+                        message.what=5
+                        handler.sendMessage(message)
                         //Log.d("response",resp)
                     }
 
